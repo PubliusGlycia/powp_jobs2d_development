@@ -1,20 +1,11 @@
 package edu.kis.powp.jobs2d;
 
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.drivers.ClickableWindowDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.events.SelectLoadSecretCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectRunCurrentCommandOptionListener;
@@ -23,6 +14,11 @@ import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
 import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
 import edu.kis.powp.jobs2d.features.DriverFeature;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestJobs2dApp {
 
@@ -75,7 +71,14 @@ public class TestJobs2dApp {
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
+
+        driver = new ClickableWindowDriver(drawerController, LineFactory.getBasicLine(), "Clickable panel", application);
+        DriverFeature.addDriver("Clickable panel", driver);
+
+
         DriverFeature.updateDriverInfo();
+
+
     }
 
     private static void setupWindows(Application application) {
@@ -106,30 +109,6 @@ public class TestJobs2dApp {
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
 
-    private static void addMouseDrawing(Application app) {
-        JPanel panel = app.getFreePanel();
-        int width, height;
-        width = panel.getWidth();
-        height = panel.getHeight();
-        panel.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    DriverFeature.getDriverManager()
-                            .getCurrentDriver()
-                            .operateTo(e.getX() - width / 2, e.getY() - height / 2);
-                    logger.warning("Operate to X:" + (e.getX() - width / 2) + " Y:" + (e.getY() - height / 2));
-                } else if (SwingUtilities.isRightMouseButton(e)) {
-                    DriverFeature.getDriverManager()
-                            .getCurrentDriver()
-                            .setPosition(e.getX() - width / 2, e.getY() - height / 2);
-                    logger.warning("Set Position X:" + (e.getX() - width / 2) + " Y:" + (e.getY() - height / 2));
-                }
-            }
-        });
-    }
-
     /**
      * Launch the application.
      */
@@ -150,8 +129,6 @@ public class TestJobs2dApp {
                 setupWindows(app);
 
                 app.setVisibility(true);
-                addMouseDrawing(app);
-
             }
         });
     }
